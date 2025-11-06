@@ -1,0 +1,134 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme - AlgoBattle Arena dark mode
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    /* Dark theme for AlgoBattle Arena */
+    --background: 217.2 32.6% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 217.2 32.6% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217.2 32.6% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 288 82% 52%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 186 100% 50%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 288 82% 52%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 15%;
+    --input: 217.2 32.6% 12%;
+    --ring: 288 82% 52%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 217.2 32.6% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 288 82% 52%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217.2 32.6% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 15%;
+    --sidebar-ring: 288 82% 52%;
+  }
+
+  body {
+    @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white;
+    @apply font-sans;
+  }
+
+  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre,
+  code {
+    overflow-x: auto;
+    white-space: pre;
+  }
+}
+
+@layer components {
+  /* Gradient button utilities */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 transition-all duration-200 shadow-lg shadow-violet-600/50 hover:shadow-violet-600/70;
+  }
+
+  .btn-gradient-dark {
+    @apply bg-gradient-to-r from-violet-700 to-cyan-700 hover:from-violet-600 hover:to-cyan-600 transition-all duration-200;
+  }
+
+  /* Card utilities */
+  .card-arena {
+    @apply rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-sm;
+  }
+
+  .card-arena-light {
+    @apply rounded-2xl border border-slate-700 bg-slate-800/50 backdrop-blur-sm;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-violet-400 via-white to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  /* Shadow utilities */
+  .shadow-glow {
+    @apply shadow-lg shadow-violet-600/50 hover:shadow-violet-600/70 transition-shadow;
+  }
+
+  .shadow-glow-cyan {
+    @apply shadow-lg shadow-cyan-600/50 hover:shadow-cyan-600/70 transition-shadow;
+  }
+}
+
+@layer utilities {
+  /* Custom animation delay utilities */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  /* Glassmorphism */
+  .glassmorphism {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .transition-smooth-fast {
+    @apply transition-all duration-200 ease-out;
+  }
+}
