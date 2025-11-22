@@ -1,16 +1,23 @@
-# 🚀 Fusion Starter
+# ⚔️ AlgoBattle Arena
 
-A **production-ready full-stack React starter template** with an integrated Express server, built for speed, scalability, and clean architecture.
+**Decentralized PvP Gaming Powered by Algorand**
 
-It features **React Router 6 SPA mode**, **TypeScript**, **Vitest**, **Zod**, and modern tooling out of the box.
+AlgoBattle Arena is a **full-stack React + Express application** where players engage in real-time **Rock-Paper-Scissors PvP battles**, stake **ALGO tokens**, earn rewards, and collect **NFT badges** — all secured by the **Algorand blockchain** and governed by a **DAO**.
 
-> ⚠️ The Express server is included mainly for **secure server-side logic**.  
-> Only create endpoints when strictly necessary — for example:
-> - 🔐 Private key handling  
-> - 🗄️ Database operations  
-> - 🛡️ Secure authentication logic  
-> - 🌐 External service integration  
 
+---
+
+## 🚀 Features
+
+- ⚔️ **PvP Battles** – Challenge other players in real-time Rock-Paper-Scissors fights  
+- 💰 **Stake & Earn** – Stake ALGO tokens and earn rewards  
+- 🏆 **Leaderboard System** – Rankings based on wins and total earnings  
+- 🎖️ **NFT Badges / Power Cards** – Earn exclusive NFTs as you level up  
+- 🔐 **Secure Blockchain Transactions** – Powered by Algorand  
+- 🤝 **DAO Governance** – 10% fee goes into DAO community pool  
+- 🧠 **Type-Safe Full Stack** – Shared interfaces between client & server  
+
+---
 
 
 ## 🛠 Tech Stack
