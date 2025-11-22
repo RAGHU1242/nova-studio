@@ -180,43 +180,64 @@ This ensures:
 - ✅ Full type safety across frontend & backend  
 - ✅ Clean shared contract  
 - ✅ No duplicated types  
-
-
 2. Create a new route handler in `server/routes/my-route.ts`:
-```typescript
+
+```ts
 import { RequestHandler } from "express";
-import { MyRouteResponse } from "@shared/api"; // Optional: for type safety
+import { MyRouteResponse } from "@shared/api"; // optional: type safety
 
 export const handleMyRoute: RequestHandler = (req, res) => {
   const response: MyRouteResponse = {
-    message: 'Hello from my endpoint!'
+    message: "Hello from my endpoint!",
   };
+
   res.json(response);
 };
 ```
 
+---
+
 3. Register the route in `server/index.ts`:
-```typescript
+
+```ts
 import { handleMyRoute } from "./routes/my-route";
 
-// Add to the createServer function:
+// Inside the createServer function
 app.get("/api/my-endpoint", handleMyRoute);
 ```
 
-4. Use in React components with type safety:
-```typescript
-import { MyRouteResponse } from '@shared/api'; // Optional: for type safety
+✅ This keeps all API routes namespaced under `/api/*` and easy to maintain.
 
-const response = await fetch('/api/my-endpoint');
+---
+
+4. Use the API in React components (with type safety):
+
+```ts
+import { MyRouteResponse } from "@shared/api";
+
+const response = await fetch("/api/my-endpoint");
 const data: MyRouteResponse = await response.json();
+
+console.log(data.message);
 ```
 
-### New Page Route
-1. Create component in `client/pages/MyPage.tsx`
-2. Add route in `client/App.tsx`:
-```typescript
+This keeps your frontend and backend strongly typed and consistent.
+
+---
+
+## 📄 Creating a New Page Route
+
+1. Create a new page inside `client/pages/MyPage.tsx`
+2. Register it in `client/App.tsx`:
+
+```tsx
 <Route path="/my-page" element={<MyPage />} />
 ```
+
+### ✅ Tips:
+- Each page inside `client/pages/` represents one route.
+- Keep your routes centralized inside `App.tsx`.
+- Helps maintain clean navigation as your app grows.
 
 ## Production Deployment
 
