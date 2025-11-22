@@ -72,43 +72,60 @@ import { Routes, Route } from "react-router-dom";
 - Each file inside `client/pages/` represents a single page.
 - Keeps routing clean, scalable, and easy to maintain as the app grows.
 
+### 🎨 Styling System
 
+- **Primary Styling**: TailwindCSS 3 utility-first approach  
+- **Theme & Design Tokens**: Centralized in `client/global.css`  
+- **UI Components**: Reusable component library inside `client/components/ui/`  
+- **Utility Function**: `cn()` merges `clsx` + `tailwind-merge` to handle conditional class names cleanly  
 
-### Styling System
+#### ✅ `cn()` Utility Example
 
-- **Primary**: TailwindCSS 3 utility classes
-- **Theme and design tokens**: Configure in `client/global.css` 
-- **UI components**: Pre-built library in `client/components/ui/`
-- **Utility**: `cn()` function combines `clsx` + `tailwind-merge` for conditional classes
-
-```typescript
-// cn utility usage
+```tsx
 className={cn(
   "base-classes",
   { "conditional-class": condition },
-  props.className  // User overrides
+  props.className // user overrides
 )}
 ```
 
-### Express Server Integration
+This ensures:
+- Clean class management  
+- No duplicate Tailwind classes  
+- Easy conditional styling  
 
-- **Development**: Single port (8080) for both frontend/backend
-- **Hot reload**: Both client and server code
-- **API endpoints**: Prefixed with `/api/`
+---
 
-#### Example API Routes
-- `GET /api/ping` - Simple ping api
-- `GET /api/demo` - Demo endpoint  
+### ⚙️ Express Server Integration
 
-### Shared Types
-Import consistent types in both client and server:
-```typescript
-import { DemoResponse } from '@shared/api';
+The backend is seamlessly integrated with Vite for full-stack development.
+
+- **Development Mode**: Runs on a **single port (8080)** for both frontend + backend  
+- **Hot Reload**: Supports HMR for client and auto-restart for server  
+- **API Route Prefix**: All backend routes are under `/api/`
+
+#### Example API Endpoints
+
+- `GET /api/ping` → Simple health check  
+- `GET /api/demo` → Demo API endpoint  
+
+---
+
+### 🔗 Shared Types & Path Aliases
+
+Shared TypeScript types can be used across both client and server:
+
+```ts
+import { DemoResponse } from "@shared/api";
 ```
 
-Path aliases:
-- `@shared/*` - Shared folder
-- `@/*` - Client folder
+#### Path Aliases
+
+- `@shared/*` → Shared folder  
+- `@/*` → Client folder  
+
+This keeps your imports clean, scalable, and maintainable across the codebase.
+
 
 ## Development Commands
 
