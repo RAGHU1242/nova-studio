@@ -54,27 +54,177 @@ shared/
 
 ## ✨ Key Features
 
+---
+
 ## 🌐 SPA Routing System
 
-The application uses **React Router 6** for smooth client-side navigation in SPA mode.
+Powered by **React Router 6**:
 
-### 📁 File Structure
-- `client/pages/Index.tsx` → Main Home Page  
-- `client/App.tsx` → Central route configuration  
-- `client/pages/` → All page-based routes  
-
-Routes are registered using `react-router-dom` like this:
+- `client/pages/Index.tsx` → Home Page  
+- Routes defined in `client/App.tsx`  
+- All pages inside `client/pages/`  
 
 ```tsx
 import { Routes, Route } from "react-router-dom";
 
 <Routes>
-  <Route path="/" element={<Index />} />
-  
-  {/* ✅ All custom routes should be added above this catch-all */}
+  <Route path="/" element={<HomePage />} />
+  <Route path="/dashboard" element={<Dashboard />} />
+  <Route path="/battle" element={<BattleArena />} />
+  <Route path="/leaderboard" element={<Leaderboard />} />
+
+  {/* Catch all */}
   <Route path="*" element={<NotFound />} />
 </Routes>
 ```
+
+---
+
+## 🎨 Styling System
+
+- Primary styling using **TailwindCSS 3**
+- Theme tokens in `client/global.css`
+- UI components inside `client/components/ui/`
+- Utility function `cn()` for merging classes
+
+```tsx
+className={cn(
+  "base-classes",
+  { "conditional-class": condition },
+  props.className
+)}
+```
+
+---
+
+## ⚙️ Express Server Integration
+
+- **Single Port Dev**: Runs on `http://localhost:8080`
+- **Hot Reload**: Client + server hot reload enabled
+- **All API Routes** Prefixed with `/api`
+
+### Example API Route
+
+1. Add type in `shared/api.ts`:
+```ts
+export interface MyRouteResponse {
+  message: string;
+}
+```
+
+2. Create route handler `server/routes/my-route.ts`:
+```ts
+import { RequestHandler } from "express";
+import { MyRouteResponse } from "@shared/api";
+
+export const handleMyRoute: RequestHandler = (req, res) => {
+  const response: MyRouteResponse = {
+    message: "Hello from AlgoBattle Arena!"
+  };
+
+  res.json(response);
+};
+```
+
+3. Register in `server/index.ts`:
+```ts
+import { handleMyRoute } from "./routes/my-route";
+
+app.get("/api/my-endpoint", handleMyRoute);
+```
+
+4. Use in React:
+```ts
+import { MyRouteResponse } from "@shared/api";
+
+const res = await fetch("/api/my-endpoint");
+const data: MyRouteResponse = await res.json();
+```
+
+---
+
+## 🔗 Shared Types & Path Aliases
+
+Available aliases:
+- `@shared/*` → Shared types
+- `@/*` → Client source
+
+```ts
+import { DemoResponse } from "@shared/api";
+```
+
+---
+
+## 🧑‍💻 Development Commands
+
+```bash
+pnpm dev        # Start dev server
+pnpm build      # Production build
+pnpm start      # Start production server
+pnpm test       # Run Vitest tests
+pnpm typecheck  # TypeScript validation
+```
+
+---
+
+## 🎮 Gameplay Basics
+
+1. Connect your wallet (Pera / MyAlgo)
+2. Fund your account with ALGO
+3. Enter Arena and challenge players
+4. Win → Receive rewards  
+   - 🏆 90% Winner  
+   - 🤝 10% DAO Pool  
+
+---
+
+## 🔐 Game Logic Summary
+
+- **Min Stake**: 1 ALGO  
+- **Max Stake**: 1000 ALGO  
+- **Win Split**: 90% Winner / 10% DAO  
+- Moves: Rock 🪨 | Paper 📄 | Scissors ✂️
+
+---
+
+## 🏗 Production Deployment
+
+- Local Build:
+```bash
+pnpm build
+```
+
+- Supports:
+  - ✅ Linux
+  - ✅ macOS
+  - ✅ Windows
+
+- Cloud:
+  - Netlify
+  - Vercel (via MCP integration)
+
+---
+
+## 📜 AGENTS.md Summary
+
+Your internal documentation aligns with this README and includes:
+
+- Wallet Integration logic  
+- Game mechanics  
+- Route info  
+- Full project architecture  
+
+---
+
+## 📄 License
+
+MIT License  
+Free to use, fork, and extend 🚀  
+
+---
+
+Built with ❤️ on Algorand  
+
 
 ### 🔑 Notes:
 - Always place your `*` (NotFound) route **last**.
