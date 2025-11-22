@@ -126,31 +126,61 @@ import { DemoResponse } from "@shared/api";
 
 This keeps your imports clean, scalable, and maintainable across the codebase.
 
+## 🧑‍💻 Development Commands
 
-## Development Commands
+Use these commands during development and production:
 
 ```bash
 pnpm dev        # Start dev server (client + server)
 pnpm build      # Production build
 pnpm start      # Start production server
-pnpm typecheck  # TypeScript validation
-pnpm test          # Run Vitest tests
+pnpm typecheck  # Run TypeScript type checks
+pnpm test       # Run Vitest test suite
 ```
 
-## Adding Features
+---
 
-### Add new colors to the theme
+## ➕ Adding Features
 
-Open `client/global.css` and `tailwind.config.ts` and add new tailwind colors.
+### 🎨 Adding New Theme Colors
 
-### New API Route
-1. **Optional**: Create a shared interface in `shared/api.ts`:
-```typescript
+To extend the color palette:
+
+1. Open `client/global.css`
+2. Update `tailwind.config.ts`
+3. Add or modify Tailwind color tokens as needed
+
+This allows you to control and scale your design system from a single source of truth.
+
+---
+
+### 🌐 Adding a New API Route
+
+If your API requires shared types, define them first.
+
+1. **Create a shared interface** in `shared/api.ts`:
+
+```ts
 export interface MyRouteResponse {
   message: string;
   // Add other response properties here
 }
 ```
+
+2. Define your new Express route under `/api/*`  
+3. Import the shared type in both client and server
+
+Example usage:
+
+```ts
+import { MyRouteResponse } from "@shared/api";
+```
+
+This ensures:
+- ✅ Full type safety across frontend & backend  
+- ✅ Clean shared contract  
+- ✅ No duplicated types  
+
 
 2. Create a new route handler in `server/routes/my-route.ts`:
 ```typescript
