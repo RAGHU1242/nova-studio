@@ -43,7 +43,35 @@ shared/                   # Types used by both client & server
 └── api.ts                # Example of how to share api interfaces
 ```
 
-docs: enhance SPA routing section with better structure and clarity
+## ✨ Key Features
+
+## 🌐 SPA Routing System
+
+The application uses **React Router 6** for smooth client-side navigation in SPA mode.
+
+### 📁 File Structure
+- `client/pages/Index.tsx` → Main Home Page  
+- `client/App.tsx` → Central route configuration  
+- `client/pages/` → All page-based routes  
+
+Routes are registered using `react-router-dom` like this:
+
+```tsx
+import { Routes, Route } from "react-router-dom";
+
+<Routes>
+  <Route path="/" element={<Index />} />
+  
+  {/* ✅ All custom routes should be added above this catch-all */}
+  <Route path="*" element={<NotFound />} />
+</Routes>
+```
+
+### 🔑 Notes:
+- Always place your `*` (NotFound) route **last**.
+- Each file inside `client/pages/` represents a single page.
+- Keeps routing clean, scalable, and easy to maintain as the app grows.
+
 
 
 ### Styling System
