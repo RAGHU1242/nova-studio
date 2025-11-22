@@ -15,12 +15,14 @@ It features **React Router 6 SPA mode**, **TypeScript**, **Vitest**, **Zod**, an
 
 ## 🛠 Tech Stack
 
-- **📦 Package Manager**: PNPM *(preferred)*  
+- **📦 Package Manager**: PNPM *(preferred for faster installs & disk efficiency)*  
 - **🎨 Frontend**: React 18 + React Router 6 (SPA) + TypeScript + Vite + TailwindCSS 3  
-- **⚙️ Backend**: Express (integrated with Vite dev server)  
-- **🧪 Testing**: Vitest  
-- **🧩 UI**: Radix UI + TailwindCSS 3 + Lucide React Icons  
-- **✅ Validation**: Zod  
+- **⚙️ Backend**: Express (integrated with Vite dev server for full-stack dev)  
+- **🧪 Testing**: Vitest *(fast, Vite-native testing)*  
+- **🧩 UI System**: Radix UI + TailwindCSS 3 + Lucide React Icons  
+- **✅ Validation**: Zod *(type-safe schema validation)*  
+- **🔒 Type Safety**: End-to-end with TypeScript  
+- **⚡ Dev Experience**: Hot reloading + Vite middleware integration  
 
 
 
