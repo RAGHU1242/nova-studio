@@ -78,8 +78,6 @@ import { Routes, Route } from "react-router-dom";
 </Routes>
 ```
 
----
-
 ## 🎨 Styling System
 
 - Primary styling using **TailwindCSS 3**
@@ -153,6 +151,7 @@ Available aliases:
 import { DemoResponse } from "@shared/api";
 ```
 
+---
 ---
 
 ## 🧑‍💻 Development Commands
