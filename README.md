@@ -19,6 +19,30 @@ AlgoBattle Arena is a **full-stack React + Express application** where players e
 
 ---
 
+## 🛠 Tech Stack
+
+- **📦 Package Manager**: PNPM *(preferred)*  
+- **🎨 Frontend**: React 18 + React Router 6 (SPA) + TypeScript + Vite  
+- **🎨 Styling**: TailwindCSS 3 + Radix UI + Lucide React  
+- **⚙️ Backend**: Express (Integrated with Vite dev server)  
+- **🧪 Testing**: Vitest  
+- **🔗 Blockchain**: Algorand (Pera Wallet / MyAlgo Integration)  
+- **📡 State Management**: TanStack Query + React Context  
+- **✅ Validation**: Zod  
+
+
+## 🚀 Features
+
+- ⚔️ **PvP Battles** – Challenge other players in real-time Rock-Paper-Scissors fights  
+- 💰 **Stake & Earn** – Stake ALGO tokens and earn rewards  
+- 🏆 **Leaderboard System** – Rankings based on wins and total earnings  
+- 🎖️ **NFT Badges / Power Cards** – Earn exclusive NFTs as you level up  
+- 🔐 **Secure Blockchain Transactions** – Powered by Algorand  
+- 🤝 **DAO Governance** – 10% fee goes into DAO community pool  
+- 🧠 **Type-Safe Full Stack** – Shared interfaces between client & server  
+
+---
+
 
 ## 🛠 Tech Stack
 
