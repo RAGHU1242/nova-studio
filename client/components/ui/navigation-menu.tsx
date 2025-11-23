@@ -3,6 +3,8 @@ import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NavigationMenuItem } from "@radix-ui/react-navigation-menu";
+import { Item } from "@radix-ui/react-accordion";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -99,7 +101,7 @@ NavigationMenuViewport.displayName =
 export {
   NavigationMenu,
   NavigationMenuList,
-  NavigationMenuItem: NavigationMenuPrimitive.Item,
+  NavigationMenuItem,
   NavigationMenuContent,
   NavigationMenuTrigger,
   NavigationMenuLink,
