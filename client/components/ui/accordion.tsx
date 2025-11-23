@@ -13,9 +13,7 @@ const AccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border-b border-transparent/30 backdrop-blur-sm bg-gradient-to-r from-white/3 to-white/2 hover:from-white/5 hover:to-white/3 transition-shadow",
-      "rounded-t-lg last:rounded-b-lg",
-      "shadow-sm hover:shadow-md",
+      "border-b transition-colors hover:bg-muted/20 data-[state=open]:bg-muted/30", 
       className
     )}
     {...props}
@@ -31,17 +29,13 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 px-5 font-medium transition-all duration-200",
-        "rounded-md hover:bg-white/3 active:scale-[0.997] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-        "[&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline hover:text-primary [&[data-state=open]>svg]:rotate-180 group",
         className
       )}
       {...props}
     >
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-foreground/90">{children}</span>
-      </div>
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      {children}
+      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 text-muted-foreground group-hover:text-primary" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
@@ -53,14 +47,10 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className={cn(
-      "overflow-hidden text-sm transition-all duration-250 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
-      "px-5 pb-5",
-      className
-    )}
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
-    <div className={cn("pt-0", className)}>{children}</div>
+    <div className={cn("pb-4 pt-0 text-muted-foreground", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 
