@@ -5,33 +5,50 @@ import { cn } from "@/lib/utils";
 
 const Sheet = SheetPrimitive.Root;
 const SheetTrigger = SheetPrimitive.Trigger;
+const SheetClose = SheetPrimitive.Close;
+const SheetPortal = SheetPrimitive.Portal;
 
-const SheetOverlay = React.forwardRef<any, any>((props, ref) => (
+const SheetOverlay = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
-    ref={ref}
-    className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+    className={cn(
+      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300",
+      className
+    )}
     {...props}
+    ref={ref}
   />
 ));
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
-const SheetContent = React.forwardRef<any, any>(({ className, children, ...props }, ref) => (
-  <SheetPrimitive.Portal>
+const SheetContent = React.forwardRef<
+  React.ElementRef<typeof SheetPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-y-0 right-0 w-[350px] border-l border-white/10",
-        "bg-gradient-to-br from-white/6 to-white/2 backdrop-blur-xl shadow-2xl p-6",
-        "outline-none", className
+        "fixed inset-y-0 right-0 z-50 w-[350px] border-l border-white/10",
+        "bg-gradient-to-br from-background/95 to-background/80 backdrop-blur-xl shadow-2xl p-6 transition ease-in-out",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+        "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+        className
       )}
       {...props}
     >
       {children}
-      <SheetPrimitive.Close className="absolute right-4 top-4 opacity-70 hover:opacity-100">
-        <X />
+      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>
-  </SheetPrimitive.Portal>
+  </SheetPortal>
 ));
+SheetContent.displayName = SheetPrimitive.Content.displayName;
 
-export { Sheet, SheetTrigger, SheetContent };
+export { Sheet, SheetTrigger, SheetContent, SheetClose, SheetOverlay };
