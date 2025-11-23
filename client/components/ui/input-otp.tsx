@@ -6,12 +6,11 @@ import { cn } from "@/lib/utils";
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
   React.ComponentPropsWithoutRef<typeof OTPInput>
->(({ className, containerClassName, maxLength = 6, ...props }, ref) => (
+>(({ className, containerClassName, ...props }, ref) => (
   <OTPInput
     ref={ref}
-    maxLength={maxLength}
     containerClassName={cn(
-      "flex items-center gap-2",
+      "flex items-center gap-2 has-[:disabled]:opacity-50",
       containerClassName
     )}
     className={cn("disabled:cursor-not-allowed", className)}
@@ -21,48 +20,35 @@ const InputOTP = React.forwardRef<
 InputOTP.displayName = "InputOTP";
 
 const InputOTPGroup = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center gap-2", className)}
-    {...props}
-  />
+  <div ref={ref} className={cn("flex items-center", className)} {...props} />
 ));
 InputOTPGroup.displayName = "InputOTPGroup";
 
 const InputOTPSlot = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext);
-
-  // Ensure slot exists to avoid undefined errors
-  const slot = inputOTPContext?.slots?.[index] ?? {
-    char: "",
-    hasFakeCaret: false,
-    isActive: false,
-  };
-
-  const { char, hasFakeCaret, isActive } = slot;
+  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index];
 
   return (
     <div
       ref={ref}
       className={cn(
-        "relative flex h-12 w-12 items-center justify-center rounded-lg",
-        "border border-white/15 bg-white/10 backdrop-blur-sm shadow-sm",
-        isActive && "ring-2 ring-primary/40",
+        "relative flex h-10 w-10 items-center justify-center border-y border-r border-input text-sm shadow-sm transition-all duration-200 first:rounded-l-md first:border-l last:rounded-r-md",
+        "bg-background/50 hover:bg-background/80",
+        isActive && "z-10 ring-2 ring-ring ring-offset-background scale-105 border-primary",
         className
       )}
       {...props}
     >
       {char}
-
       {hasFakeCaret && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-5 w-px bg-foreground opacity-80" />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
         </div>
       )}
     </div>
@@ -71,11 +57,11 @@ const InputOTPSlot = React.forwardRef<
 InputOTPSlot.displayName = "InputOTPSlot";
 
 const InputOTPSeparator = React.forwardRef<
-  HTMLDivElement,
+  React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
->((props, ref) => (
+>(({ ...props }, ref) => (
   <div ref={ref} role="separator" {...props}>
-    <Dot className="opacity-60" />
+    <Dot />
   </div>
 ));
 InputOTPSeparator.displayName = "InputOTPSeparator";
