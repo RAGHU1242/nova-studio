@@ -51,7 +51,7 @@ const BreadcrumbLink = React.forwardRef<
     <Comp
       ref={ref}
       className={cn(
-        "transition-colors hover:text-foreground hover:underline decoration-primary/30",
+        "transition-colors hover:text-primary hover:underline underline-offset-4 decoration-primary/50",
         className
       )}
       {...props}
@@ -83,10 +83,10 @@ const BreadcrumbSeparator = ({
   <li
     role="presentation"
     aria-hidden="true"
-    className={cn("text-muted-foreground/80", className)}
+    className={cn("[&>svg]:size-3.5 opacity-50", className)}
     {...props}
   >
-    {children ?? <ChevronRight className="h-4 w-4" />}
+    {children ?? <ChevronRight />}
   </li>
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
@@ -99,7 +99,7 @@ const BreadcrumbEllipsis = ({
     role="presentation"
     aria-hidden="true"
     className={cn(
-      "flex h-9 w-9 items-center justify-center rounded-full hover:bg-white/2 transition-colors",
+      "flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-muted/50",
       className
     )}
     {...props}
