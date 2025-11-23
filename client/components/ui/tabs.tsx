@@ -11,8 +11,8 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-lg",
-      "bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-sm border border-white/10 p-1 shadow-sm",
+      "inline-flex h-10 items-center justify-center rounded-lg p-1",
+      "bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-sm border border-white/10 shadow-sm",
       className
     )}
     {...props}
@@ -27,10 +27,11 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium",
-      "text-muted-foreground transition-colors",
-      "data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow",
-      "hover:bg-white/5",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all duration-200",
+      "text-muted-foreground hover:text-foreground hover:bg-white/5",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2",
+      "disabled:pointer-events-none disabled:opacity-50",
+      "data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:scale-[1.02]",
       className
     )}
     {...props}
@@ -45,7 +46,9 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-3 rounded-lg border border-white/10 bg-gradient-to-br from-white/5 to-white/2 p-4 backdrop-blur-sm shadow-sm",
+      "mt-3 rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/2 p-6 backdrop-blur-sm shadow-md",
+      "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      "animate-in fade-in-50 zoom-in-95 duration-200", // Entrance animation
       className
     )}
     {...props}
