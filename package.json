@@ -1,5 +1,6 @@
 {
-  "name": "fusion-starter",
+  "name": "algobattle-arena",
+  "description": "Decentralized PvP gaming powered by Algorand",
   "private": true,
   "type": "module",
   "pkg": {
