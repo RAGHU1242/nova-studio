@@ -158,4 +158,22 @@ const useFormField = () => {
   };
 };
 
-export { Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage };
+// FormField component that wraps Controller
+const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  ...props
+}: ControllerProps<TFieldValues, TName>) => (
+  <Controller {...props} />
+);
+
+export {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+};
