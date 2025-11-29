@@ -1,66 +1,93 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import WalletConnect from "@/components/WalletConnect";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { DemoResponse } from "@shared/api";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { motion } from "framer-motion";
+import { 
+  Swords, 
+  Trophy, 
+  TrendingUp, 
+  Wallet, 
+  History,
+  LogOut 
+} from "lucide-react";
 
-async function fetchDemoData(): Promise<DemoResponse> {
-  const response = await fetch("/api/demo");
-  if (!response.ok) {
-    throw new Error("Failed to fetch demo data");
-  }
-  return response.json();
-}
+const mockChartData = [
+  { name: "Mon", wins: 4, losses: 2 },
+  { name: "Tue", wins: 3, losses: 1 },
+  { name: "Wed", wins: 5, losses: 0 },
+  { name: "Thu", wins: 2, losses: 2 },
+  { name: "Fri", wins: 6, losses: 1 },
+  { name: "Sat", wins: 4, losses: 3 },
+  { name: "Sun", wins: 3, losses: 1 },
+];
 
 export default function Dashboard() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [playerProfile, setPlayerProfile] = useState<any>(null);
   const { user, logout } = useAuth();
-  const { toast } = useToast();
 
-  // Fetch demo data using TanStack Query
-  const { data: demoData, isLoading: isDemoLoading, error: demoError } = useQuery({
-    queryKey: ["demo"],
-    queryFn: fetchDemoData,
+  // Mock user stats from leaderboard
+  const { data: userRank } = useQuery({
+    queryKey: ["userRank", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const response = await fetch(`/api/leaderboard/${user.id}`);
+      if (!response.ok) return null;
+      return response.json();
+    },
+    enabled: !!user?.id,
   });
 
-  const handleConnect = async (address: string) => {
-    setWalletAddress(address);
-    try {
-      // Mock fetch player profile
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setPlayerProfile({
-        wins: 12,
-        losses: 3,
-        totalStaked: "500",
-        averageStake: "41.67",
-        nftBadges: ["warrior", "champion", "streak_10"],
-      });
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch profile data",
-        variant: "destructive",
-      });
-    }
-  };
+  const stats = [
+    {
+      label: "Total Wins",
+      value: userRank?.wins || 0,
+      icon: Trophy,
+      color: "from-violet-600 to-violet-400",
+    },
+    {
+      label: "Win Rate",
+      value: userRank ? `${(userRank.winRate * 100).toFixed(1)}%` : "0%",
+      icon: TrendingUp,
+      color: "from-cyan-600 to-cyan-400",
+    },
+    {
+      label: "Total Earnings",
+      value: `${userRank?.totalEarnings || 0} ALGO`,
+      icon: Wallet,
+      color: "from-yellow-600 to-yellow-400",
+    },
+    {
+      label: "Current Rank",
+      value: userRank?.rank ? `#${userRank.rank}` : "-",
+      icon: History,
+      color: "from-pink-600 to-pink-400",
+    },
+  ];
 
-  const handleDisconnect = () => {
-    setWalletAddress(null);
-    setPlayerProfile(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-  };
+  const quickActions = [
+    {
+      title: "Join Battle",
+      description: "Challenge an opponent",
+      href: "/battle",
+      icon: Swords,
+      color: "from-violet-600 to-cyan-600",
+    },
+    {
+      title: "Leaderboard",
+      description: "View global rankings",
+      href: "/leaderboard",
+      icon: Trophy,
+      color: "from-yellow-600 to-orange-600",
+    },
+    {
+      title: "My Profile",
+      description: "Manage your profile",
+      href: "/profile",
+      icon: Wallet,
+      color: "from-cyan-600 to-blue-600",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -70,236 +97,152 @@ export default function Dashboard() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* Page Header */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent mb-2">
-              Dashboard
-            </h1>
-            <p className="text-slate-400">
-              Welcome, {user?.name}! Manage your account and jump into battle
-            </p>
-          </div>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="border-red-500/30 text-red-400 hover:bg-red-600/10"
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        {/* Welcome Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold mb-2">
+            Welcome back, <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">{user?.name}</span>
+          </h1>
+          <p className="text-slate-400">Ready to battle? Check your stats and join the arena!</p>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
+        >
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 hover:border-slate-600 transition"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color} opacity-20`}>
+                    <Icon className={`w-6 h-6 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} />
+                  </div>
+                </div>
+                <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold">{stat.value}</p>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-1 space-y-4"
           >
-            Logout
-          </Button>
+            <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link key={action.title} to={action.href}>
+                  <div className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-4 hover:border-slate-600 transition group">
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-lg bg-gradient-to-r ${action.color} opacity-20 group-hover:opacity-30 transition`}>
+                        <Icon className={`w-5 h-5 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`} />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{action.title}</p>
+                        <p className="text-sm text-slate-400">{action.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </motion.div>
+
+          {/* Chart */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-2"
+          >
+            <div className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6">
+              <h2 className="text-xl font-bold mb-6">This Week's Performance</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={mockChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: "#1e293b", 
+                      border: "1px solid #475569",
+                      borderRadius: "8px"
+                    }}
+                  />
+                  <Bar dataKey="wins" fill="#a78bfa" name="Wins" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="losses" fill="#06b6d4" name="Losses" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Demo Data Section */}
-        {isDemoLoading && (
-          <div className="mb-8 rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-            <div className="flex items-center justify-center py-6">
-              <div className="text-center">
-                <svg className="animate-spin h-8 w-8 text-violet-600 mx-auto mb-2" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <p className="text-slate-400 text-sm">Loading demo data...</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {demoError && (
-          <div className="mb-8 rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-200">
-            Failed to load demo data. Please refresh the page.
-          </div>
-        )}
-
-        {demoData && (
-          <div className="mb-8 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-600/10 to-violet-600/10 p-6">
-            <h2 className="text-lg font-semibold mb-2 text-cyan-400">Server Response</h2>
-            <p className="text-slate-300 font-mono">{demoData.message}</p>
-          </div>
-        )}
-
-        {!walletAddress ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Wallet Connection Card */}
-            <div className="lg:col-span-2">
-              <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-12">
-                <div className="text-center space-y-8">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-cyan-600 flex items-center justify-center text-3xl mx-auto shadow-lg shadow-violet-600/50">
-                    🔑
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold mb-3">Connect Your Wallet</h2>
-                    <p className="text-slate-400 max-w-md mx-auto">
-                      Link your Pera Wallet or MyAlgoConnect to access your dashboard, view stats, and start battling.
-                    </p>
-                  </div>
-                  <WalletConnect
-                    onConnect={handleConnect}
-                    size="lg"
-                    className="!flex-col w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div className="space-y-4">
-              <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-                <h3 className="font-bold mb-4">Quick Links</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <Link
-                      to="/leaderboard"
-                      className="flex items-center gap-2 text-slate-400 hover:text-violet-400 transition"
-                    >
-                      <span>🏆</span> View Leaderboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/"
-                      className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition"
-                    >
-                      <span>📚</span> Learn More
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-xl border border-slate-700 bg-gradient-to-br from-violet-600/10 to-cyan-600/10 p-6 border-violet-500/30">
-                <h3 className="font-bold mb-3">Getting Started</h3>
-                <ol className="space-y-2 text-sm text-slate-300 list-decimal list-inside">
-                  <li>Connect your wallet</li>
-                  <li>Fund your account with ALGO</li>
-                  <li>Join a battle in the arena</li>
-                  <li>Claim your rewards!</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Wallet Info */}
-            <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-8">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        {/* Recent Matches Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 mb-12"
+        >
+          <h2 className="text-2xl font-bold mb-6">Recent Matches</h2>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between p-4 rounded-lg bg-slate-900/50 border border-slate-700">
                 <div>
-                  <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                    Connected Wallet
-                  </h2>
-                  <p className="text-2xl font-mono font-bold text-white break-all">
-                    {walletAddress}
+                  <p className="font-semibold">vs Player_abc123</p>
+                  <p className="text-sm text-slate-400">2 hours ago</p>
+                </div>
+                <div className="text-right">
+                  <p className={`font-bold ${i % 2 === 0 ? "text-violet-400" : "text-cyan-400"}`}>
+                    {i % 2 === 0 ? "Won" : "Lost"}
                   </p>
-                </div>
-                <button
-                  onClick={handleDisconnect}
-                  className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 font-semibold transition"
-                >
-                  Disconnect
-                </button>
-              </div>
-            </div>
-
-            {playerProfile ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Stats Cards */}
-                <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-slate-400">Total Wins</h3>
-                    <span className="text-2xl">🏆</span>
-                  </div>
-                  <p className="text-3xl font-bold">{playerProfile.wins}</p>
-                  <p className="text-xs text-slate-500 mt-2">{playerProfile.losses} losses</p>
-                </div>
-
-                <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-slate-400">Win Rate</h3>
-                    <span className="text-2xl">📈</span>
-                  </div>
-                  <p className="text-3xl font-bold">
-                    {((playerProfile.wins / (playerProfile.wins + playerProfile.losses)) * 100).toFixed(1)}%
-                  </p>
-                  <p className="text-xs text-slate-500 mt-2">Last updated today</p>
-                </div>
-
-                <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-slate-400">Total Staked</h3>
-                    <span className="text-2xl">💰</span>
-                  </div>
-                  <p className="text-3xl font-bold">{playerProfile.totalStaked}</p>
-                  <p className="text-xs text-slate-500 mt-2">ALGO Tokens</p>
-                </div>
-
-                <div className="rounded-xl border border-slate-700 bg-slate-800/50 p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-slate-400">Avg Stake</h3>
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <p className="text-3xl font-bold">{playerProfile.averageStake}</p>
-                  <p className="text-xs text-slate-500 mt-2">ALGO per battle</p>
+                  <p className="text-sm text-slate-400">10 ALGO</p>
                 </div>
               </div>
-            ) : null}
-
-            {/* Badges Section */}
-            {playerProfile && playerProfile.nftBadges.length > 0 && (
-              <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-8">
-                <h2 className="text-2xl font-bold mb-6">Your Badges</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {playerProfile.nftBadges.map((badge: string, index: number) => (
-                    <div
-                      key={index}
-                      className="rounded-xl border border-violet-500/50 bg-gradient-to-br from-violet-600/20 to-cyan-600/20 p-6 text-center hover:border-violet-400 hover:shadow-lg hover:shadow-violet-600/30 transition"
-                    >
-                      <div className="text-4xl mb-2">🎖️</div>
-                      <p className="text-sm font-semibold capitalize text-slate-300">{badge}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Link
-                to="/battle"
-                className="rounded-xl border border-violet-500/50 bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-500 hover:to-violet-600 p-6 text-center font-bold transition hover:shadow-lg hover:shadow-violet-600/50 hover:scale-105"
-              >
-                <div className="text-3xl mb-2">⚔️</div>
-                <div>Join Battle</div>
-                <div className="text-xs text-violet-200 mt-1">Challenge an opponent</div>
-              </Link>
-
-              <Link
-                to="/leaderboard"
-                className="rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-700 p-6 text-center font-bold transition hover:border-cyan-500/50"
-              >
-                <div className="text-3xl mb-2">🏆</div>
-                <div>View Leaderboard</div>
-                <div className="text-xs text-slate-400 mt-1">See top players</div>
-              </Link>
-
-              <button className="rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-700 p-6 text-center font-bold transition hover:border-cyan-500/50">
-                <div className="text-3xl mb-2">💳</div>
-                <div>Withdraw Rewards</div>
-                <div className="text-xs text-slate-400 mt-1">Claim your earnings</div>
-              </button>
-            </div>
+            ))}
           </div>
-        )}
+          <Link to="/leaderboard">
+            <Button variant="ghost" className="w-full mt-4 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800">
+              View All Matches
+            </Button>
+          </Link>
+        </motion.div>
+
+        {/* Logout Button */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Button
+            onClick={() => {
+              logout();
+            }}
+            variant="outline"
+            className="w-full border-red-500/30 text-red-400 hover:bg-red-600/10"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
+        </motion.div>
       </div>
     </div>
   );
