@@ -21,6 +21,7 @@ AlgoBattle Arena is now at **MVP stage** with the following features fully imple
 - Leaderboard with rankings
 - User statistics dashboard
 
+
 **Backend API**
 - `/api/auth/register` - User registration
 - `/api/auth/login` - User login
