@@ -97,6 +97,7 @@ pnpm typecheck  # TypeScript validation
 pnpm test          # Run Vitest tests
 ```
 
+
 ## Adding Features
 
 ### Add new colors to the theme
