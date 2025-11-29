@@ -1,4 +1,5 @@
 import * as React from "react";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -6,12 +7,17 @@ const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
+  <motion.div
     ref={ref}
     className={cn(
       "rounded-2xl border bg-card text-card-foreground shadow-sm transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl hover:border-primary/20",
       className,
     )}
+    whileHover={{
+      y: -4,
+      boxShadow: "0 20px 40px rgba(139, 92, 246, 0.2)",
+    }}
+    transition={{ duration: 0.3, ease: "easeOut" }}
     {...props}
   />
 ));
