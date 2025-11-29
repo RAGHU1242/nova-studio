@@ -4,7 +4,6 @@
 
 AlgoBattle Arena is a **full-stack React + Express application** where players engage in real-time **Rock-Paper-Scissors PvP battles**, stake **ALGO tokens**, earn rewards, and collect **NFT badges** — all secured by the **Algorand blockchain** and governed by a **DAO**.
 
-
 ## 🚀 Features
 
 - ⚔️ **PvP Battles** – Challenge other players in real-time Rock-Paper-Scissors fights  
@@ -14,8 +13,6 @@ AlgoBattle Arena is a **full-stack React + Express application** where players e
 - 🔐 **Secure Blockchain Transactions** – Powered by Algorand  
 - 🤝 **DAO Governance** – 10% fee goes into DAO community pool  
 - 🧠 **Type-Safe Full Stack** – Shared interfaces between client & server  
-
-
 
 ## 🛠 Tech Stack
 
@@ -29,7 +26,6 @@ AlgoBattle Arena is a **full-stack React + Express application** where players e
 - **✅ Validation**: Zod  
 
 
----
 
 ## 📁 Project Structure
 
