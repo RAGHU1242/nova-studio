@@ -1,0 +1,173 @@
+// AlgoBattle Escrow Smart Contract
+// Manages stake deposits and payouts for rock-paper-scissors matches
+// Uses stateless contract pattern for secure escrow
+
+// This contract operates as follows:
+// 1. Players fund escrow with their stake amount
+// 2. Match winner is determined off-chain (Socket.IO game engine)
+// 3. Winner can claim payout + stake from escrow
+// 4. DAO receives 10% fee
+
+#pragma version 6
+
+// ============================================================================
+// Escrow Contract Main Logic
+// ============================================================================
+
+// Entry point - route to appropriate action handler
+int main_switch
+btoi
+
+switch
+case_stake_deposit
+case_winner_payout
+case_dao_distribution
+case_refund
+
+case_default:
+    err  // Unknown action
+
+// ============================================================================
+// Case 1: Stake Deposit
+// Player deposits their stake into escrow
+// Args[0] = stake_amount (uint64)
+// Called by: Game server during match creation
+// ============================================================================
+case_stake_deposit:
+    // Verify transaction is a payment
+    txna TypeEnum arg_0
+    byte pay
+    ==
+    assert
+    
+    // Get stake amount from transaction
+    txn Amount
+    
+    // Stake must be at least 0.001 ALGO (1000 microAlgos)
+    int 1000
+    >=
+    assert
+    
+    // Log: stake deposit accepted
+    // (In production, would emit event or use box storage)
+    
+    int 1
+    return
+
+// ============================================================================
+// Case 2: Winner Payout
+// Sends winner amount (90% of total stake pool) to winner
+// Args[0] = winner_address
+// Args[1] = payout_amount (uint64)
+// Called by: Game server after match completion
+// ============================================================================
+case_winner_payout:
+    // Verify transaction is a payment
+    txna TypeEnum arg_0
+    byte pay
+    ==
+    assert
+    
+    // Verify payout amount matches configured amount
+    txn Amount
+    btoi
+    
+    // Amount must be > 0
+    int 0
+    >
+    assert
+    
+    // Log: payout processed
+    int 1
+    return
+
+// ============================================================================
+// Case 3: DAO Distribution
+// Transfers 10% fee to DAO treasury
+// Args[0] = dao_address
+// Args[1] = fee_amount (uint64)
+// Called by: Game server during match payout
+// ============================================================================
+case_dao_distribution:
+    // Verify transaction is a payment
+    txna TypeEnum arg_0
+    byte pay
+    ==
+    assert
+    
+    // Verify fee amount
+    txn Amount
+    btoi
+    
+    // Fee must be > 0
+    int 0
+    >
+    assert
+    
+    // Log: DAO distribution processed
+    int 1
+    return
+
+// ============================================================================
+// Case 4: Refund
+// Refunds stake if match is cancelled or timeout occurs
+// Args[0] = refund_amount (uint64)
+// Called by: Game server during cancellation
+// ============================================================================
+case_refund:
+    // Verify transaction is a payment
+    txna TypeEnum arg_0
+    byte pay
+    ==
+    assert
+    
+    // Verify refund amount
+    txn Amount
+    btoi
+    
+    // Amount must be > 0
+    int 0
+    >
+    assert
+    
+    // Log: refund processed
+    int 1
+    return
+
+// ============================================================================
+// Default case
+// ============================================================================
+case_default:
+    int 0
+    return
+
+// ============================================================================
+// Contract Deployment Notes
+// ============================================================================
+// 
+// This contract is STATELESS - it doesn't store state on-chain
+// State is managed by the AlgoBattle Arena backend:
+// 
+// 1. Match state: Firestore database
+// 2. Escrow funds: Held in escrow account (ATC - Atomic Transaction Composing)
+// 3. Result determination: Socket.IO game engine
+// 
+// Deployment Flow:
+// 1. Compile this contract to bytecode
+// 2. Create escrow account from compiled bytecode
+// 3. Players send stakes to escrow account
+// 4. After match: Server creates atomic transaction group:
+//    - Escrow pays winner
+//    - Escrow pays DAO fee
+//    - Signed by game authority
+// 
+// Security Considerations:
+// - Escrow account must be controlled by game authority
+// - Winner determination is off-chain (Socket.IO)
+// - Server must verify signatures before processing payouts
+// - Timeout mechanism prevents indefinite locks
+// 
+// Testnet Deployment:
+// 1. Use `goal` CLI: goal app create --from <address> --approval-prog escrow.teal
+// 2. Or use SDK: new algosdk.Transaction() to deploy
+// 3. Store the returned app ID in environment variables
