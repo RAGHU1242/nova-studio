@@ -1,8 +1,6 @@
 import { useAuth } from "./useAuth";
 
 export function useApi() {
-  const { token } = useAuth();
-
   const request = async <T,>(
     endpoint: string,
     options: RequestInit & { method?: string } = {}
@@ -16,14 +14,10 @@ export function useApi() {
       Object.assign(headers, options.headers);
     }
 
-    // Add authorization header if token exists
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
     const response = await fetch(endpoint, {
       ...options,
       headers,
+      credentials: "include", // Important: include cookies in all requests
     });
 
     if (!response.ok) {
