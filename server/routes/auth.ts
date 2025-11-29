@@ -1,176 +1,294 @@
-import { RequestHandler } from "express";
-import { generateToken } from "../middleware/auth";
-import { RegisterRequest, LoginRequest, AuthResponse } from "@shared/api";
+import { RequestHandler } from 'express';
+import { z } from 'zod';
+import { RegisterRequest, LoginRequest, AuthResponse, UserProfileResponse } from '@shared/api';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyPassword,
+  hashPassword,
+  AuthRequest,
+  ACCESS_TOKEN_EXPIRY,
+  REFRESH_TOKEN_EXPIRY,
+} from '../middleware/auth';
+import {
+  createUser,
+  getUserById,
+  getUserByEmail,
+  updateUserProfile,
+  initializeFirebase,
+} from '../lib/firebase';
 
-// Mock user storage (in production, this would use Firestore)
-const users: Map<string, any> = new Map();
+// Validation schemas
+const registerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+});
 
-/**
- * Hash password (mock - in production use bcrypt)
- */
-function hashPassword(password: string): string {
-  return Buffer.from(password).toString("base64");
-}
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
 
-/**
- * Verify password (mock - in production use bcrypt)
- */
-function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
-}
+// Initialize Firebase on first load
+initializeFirebase();
 
 /**
  * Register endpoint
+ * POST /api/auth/register
  */
 export const handleRegister: RequestHandler = async (req, res) => {
   try {
-    const { name, email, password } = req.body as RegisterRequest;
-
-    // Validation
-    if (!name || !email || !password) {
-      res.status(400).json({ error: "Missing required fields: name, email, password" });
+    // Validate input
+    const validationResult = registerSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ');
+      res.status(400).json({ error: `Validation error: ${errors}` });
       return;
     }
 
-    if (password.length < 6) {
-      res.status(400).json({ error: "Password must be at least 6 characters" });
+    const { name, email, password } = validationResult.data;
+
+    // Check if user already exists
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      res.status(409).json({ error: 'Email already registered' });
       return;
     }
 
-    // Check if user exists (mock)
-    for (const user of users.values()) {
-      if (user.email === email) {
-        res.status(409).json({ error: "Email already registered" });
-        return;
-      }
-    }
+    // Hash password
+    const hashedPassword = await hashPassword(password);
 
-    // Create user
+    // Create user ID
     const userId = `user_${Date.now()}`;
-    const hashedPassword = hashPassword(password);
 
-    const userData = {
-      id: userId,
+    // Create user in Firestore
+    const userData = await createUser(userId, {
       name,
       email,
       password: hashedPassword,
+      walletAddress: null,
+      avatarUrl: null,
       wins: 0,
       losses: 0,
       totalStaked: 0,
-      walletAddress: null,
-      avatarUrl: null,
+      totalEarnings: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    });
 
-    users.set(userId, userData);
+    // Generate tokens
+    const accessToken = generateAccessToken(userId, email, name);
+    const refreshToken = generateRefreshToken(userId);
 
-    // Generate token
-    const token = generateToken(userId, email);
+    // Set HttpOnly cookies
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: 'strict',
+      maxAge: ACCESS_TOKEN_EXPIRY * 1000, // Convert to ms
+    });
 
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: REFRESH_TOKEN_EXPIRY * 1000,
+    });
+
+    // Return response (excluding password)
     const response: AuthResponse = {
-      token,
+      token: accessToken, // Include for backward compatibility with client
       user: {
         id: userId,
         name,
         email,
+        walletAddress: null,
+        avatarUrl: null,
       },
     };
 
     res.status(201).json(response);
   } catch (error) {
-    console.error("Register error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Register error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 /**
  * Login endpoint
+ * POST /api/auth/login
  */
 export const handleLogin: RequestHandler = async (req, res) => {
   try {
-    const { email, password } = req.body as LoginRequest;
-
-    // Validation
-    if (!email || !password) {
-      res.status(400).json({ error: "Missing required fields: email, password" });
+    // Validate input
+    const validationResult = loginSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ');
+      res.status(400).json({ error: `Validation error: ${errors}` });
       return;
     }
 
-    // Find user (mock)
-    let user = null;
-    for (const u of users.values()) {
-      if (u.email === email) {
-        user = u;
-        break;
-      }
-    }
+    const { email, password } = validationResult.data;
 
+    // Find user
+    const user = await getUserByEmail(email);
     if (!user) {
-      res.status(401).json({ error: "Invalid email or password" });
+      res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
     // Verify password
-    if (!verifyPassword(password, user.password)) {
-      res.status(401).json({ error: "Invalid email or password" });
+    const isPasswordValid = await verifyPassword(password, user.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
 
-    // Generate token
-    const token = generateToken(user.id, email);
+    // Generate tokens
+    const accessToken = generateAccessToken(user.id, email, user.name);
+    const refreshToken = generateRefreshToken(user.id);
 
+    // Set HttpOnly cookies
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: ACCESS_TOKEN_EXPIRY * 1000,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: REFRESH_TOKEN_EXPIRY * 1000,
+    });
+
+    // Return response (excluding password)
     const response: AuthResponse = {
-      token,
+      token: accessToken, // For backward compatibility
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        walletAddress: user.walletAddress,
-        avatarUrl: user.avatarUrl,
+        walletAddress: user.walletAddress || undefined,
+        avatarUrl: user.avatarUrl || undefined,
       },
     };
 
     res.json(response);
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 /**
- * Get current user (requires auth)
+ * Get current user endpoint
+ * GET /api/users/me
+ * Requires authentication
  */
-export const handleGetCurrentUser: RequestHandler = async (req, res) => {
+export const handleGetCurrentUser: RequestHandler = async (req: AuthRequest, res) => {
   try {
-    const userId = (req as any).userId;
-
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+    if (!req.userId) {
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
-    const user = users.get(userId);
-
+    const user = await getUserById(req.userId);
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    res.json({
+    // Return user profile (excluding password)
+    const response: UserProfileResponse = {
       id: user.id,
       name: user.name,
       email: user.email,
-      walletAddress: user.walletAddress,
-      avatarUrl: user.avatarUrl,
+      walletAddress: user.walletAddress || undefined,
+      avatarUrl: user.avatarUrl || undefined,
       wins: user.wins,
       losses: user.losses,
       totalStaked: user.totalStaked,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    });
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    };
+
+    res.json(response);
   } catch (error) {
-    console.error("Get current user error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Get current user error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Logout endpoint
+ * POST /api/auth/logout
+ */
+export const handleLogout: RequestHandler = (req, res) => {
+  try {
+    // Clear cookies
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * Refresh token endpoint
+ * POST /api/auth/refresh
+ */
+export const handleRefreshToken: RequestHandler = async (req: AuthRequest, res) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      res.status(401).json({ error: 'Missing refresh token' });
+      return;
+    }
+
+    // Verify refresh token (basic verification)
+    const parts = refreshToken.split('.');
+    if (parts.length !== 3) {
+      res.status(401).json({ error: 'Invalid refresh token' });
+      return;
+    }
+
+    // Decode to get userId
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+    const userId = payload.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Invalid refresh token' });
+      return;
+    }
+
+    // Get user to generate new access token
+    const user = await getUserById(userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // Generate new access token
+    const newAccessToken = generateAccessToken(user.id, user.email, user.name);
+
+    // Set new access token cookie
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: ACCESS_TOKEN_EXPIRY * 1000,
+    });
+
+    res.json({ message: 'Token refreshed' });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
