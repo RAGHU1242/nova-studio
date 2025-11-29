@@ -131,4 +131,97 @@
   .transition-smooth-fast {
     @apply transition-all duration-200 ease-out;
   }
+
+  /* Glow effects */
+  .glow-violet {
+    @apply shadow-lg shadow-violet-600/50;
+  }
+
+  .glow-cyan {
+    @apply shadow-lg shadow-cyan-600/50;
+  }
+
+  /* Hover lift effects */
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  /* Button animations */
+  .btn-animate {
+    @apply transition-all duration-200 active:scale-95;
+  }
+
+  /* Text glow */
+  .text-glow {
+    @apply drop-shadow-lg drop-shadow-violet-600/50;
+  }
+
+  /* Scale on hover */
+  .scale-hover {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  /* Smooth fade */
+  .fade-smooth {
+    @apply transition-opacity duration-300;
+  }
+
+  /* Border glow animation */
+  @keyframes border-glow {
+    0%, 100% {
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    }
+    50% {
+      border-color: rgba(34, 211, 238, 0.5);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+    }
+  }
+
+  .border-glow {
+    animation: border-glow 3s ease-in-out infinite;
+  }
+
+  /* Floating animation */
+  @keyframes float-smooth {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .float-smooth {
+    animation: float-smooth 4s ease-in-out infinite;
+  }
+
+  /* Bounce animation */
+  @keyframes bounce-soft {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .bounce-soft {
+    animation: bounce-soft 2s ease-in-out infinite;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .shimmer {
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
 }
