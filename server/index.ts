@@ -21,8 +21,14 @@ export function createServer() {
   const app = express();
   const httpServer = http.createServer(app);
 
-  // Initialize Firebase
-  initializeFirebase();
+  // Initialize Firebase lazily - will be called on first use via getFirestore/getAuth
+  // Avoid calling here during vite config load phase
+  try {
+    initializeFirebase();
+  } catch (error) {
+    // Suppress initialization errors during vite config load
+    console.warn('Firebase initialization deferred:', (error as any)?.message);
+  }
 
   // Initialize Socket.IO Game Server
   const gameServer = new GameServer(httpServer);
