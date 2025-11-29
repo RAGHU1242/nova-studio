@@ -1,189 +1,297 @@
-// Firebase/Firestore Integration Utilities
+import {
+  initializeApp,
+  FirebaseApp,
+} from "firebase/app";
+import {
+  getFirestore,
+  Firestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  addDoc,
+  QueryConstraint,
+} from "firebase/firestore";
 
-export interface PlayerProfile {
+export interface User {
   id: string;
-  address: string;
-  username: string;
+  email: string;
+  name: string;
+  walletAddress?: string;
+  avatarUrl?: string;
   wins: number;
   losses: number;
   totalStaked: number;
-  averageStake: number;
-  nftBadges: string[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface GameMatch {
+export interface Match {
   id: string;
-  player1: string;
-  player2: string;
+  playerAId: string;
+  playerBId: string;
   stake: number;
-  winner: string;
-  choice1: string;
-  choice2: string;
-  reward: number;
-  daoFee: number;
-  timestamp: Date;
-  status: "completed" | "pending" | "cancelled";
+  status: "pending" | "in_progress" | "completed" | "cancelled";
+  winner?: string;
+  result?: {
+    playerAChoice?: string;
+    playerBChoice?: string;
+    winnerReward?: number;
+    daoFee?: number;
+  };
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface LeaderboardEntry {
   rank: number;
-  address: string;
-  username: string;
+  userId: string;
+  name: string;
   wins: number;
+  losses: number;
   winRate: number;
   totalEarnings: number;
 }
 
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+
 /**
  * Initialize Firebase/Firestore
- * TODO: Replace with actual Firebase SDK initialization
+ * Requires VITE_FIREBASE_* environment variables to be set
  */
-export const initializeFirebase = async (): Promise<void> => {
-  // TODO: Import and initialize Firebase SDK
-  // const { initializeApp } = await import("firebase/app");
-  // const firebaseConfig = { ... };
-  // initializeApp(firebaseConfig);
-  console.log("Firebase initialized (placeholder)");
-};
+export const initializeFirebase = async (): Promise<Firestore> => {
+  if (db) return db;
 
-/**
- * Create or update player profile in Firestore
- */
-export const savePlayerProfile = async (
-  address: string,
-  profile: Partial<PlayerProfile>
-): Promise<void> => {
-  // TODO: Replace with actual Firestore set/update call
-  // import { getFirestore, doc, setDoc } from "firebase/firestore";
-  // const db = getFirestore();
-  // await setDoc(doc(db, "players", address), profile, { merge: true });
-
-  console.log(`Saving player profile for ${address}:`, profile);
-};
-
-/**
- * Fetch player profile from Firestore
- */
-export const fetchPlayerProfile = async (
-  address: string
-): Promise<PlayerProfile | null> => {
-  // TODO: Replace with actual Firestore get call
-  // import { getFirestore, doc, getDoc } from "firebase/firestore";
-  // const db = getFirestore();
-  // const docSnap = await getDoc(doc(db, "players", address));
-  // return docSnap.data() as PlayerProfile || null;
-
-  // Mock data
-  return {
-    id: address,
-    address,
-    username: `Player_${address.slice(0, 6)}`,
-    wins: 15,
-    losses: 8,
-    totalStaked: 250,
-    averageStake: 22,
-    nftBadges: ["pioneer", "champion"],
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(),
+  const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDummyKeyForDevelopment",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "algobattle-arena.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "algobattle-arena",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "algobattle-arena.appspot.com",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "123456789",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:123456789:web:abcdef123456",
   };
+
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  
+  console.log("Firebase initialized with project:", firebaseConfig.projectId);
+  return db;
 };
 
 /**
- * Record a completed match to Firestore
+ * Get Firestore instance
  */
-export const recordMatch = async (match: GameMatch): Promise<void> => {
-  // TODO: Replace with actual Firestore add call
-  // import { getFirestore, collection, addDoc } from "firebase/firestore";
-  // const db = getFirestore();
-  // await addDoc(collection(db, "matches"), match);
-
-  console.log("Recording match:", match);
+export const getDB = async (): Promise<Firestore> => {
+  if (!db) {
+    return initializeFirebase();
+  }
+  return db;
 };
 
 /**
- * Fetch leaderboard from Firestore
- * Ordered by wins descending
+ * Create or update user profile
  */
-export const fetchLeaderboard = async (limit = 10): Promise<LeaderboardEntry[]> => {
-  // TODO: Replace with actual Firestore query
-  // import { getFirestore, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
-  // const db = getFirestore();
-  // const q = query(collection(db, "players"), orderBy("wins", "desc"), limit(limit));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map((doc, index) => ({ ... }));
+export const saveUserProfile = async (userId: string, userData: Partial<User>): Promise<void> => {
+  const firestore = await getDB();
+  const userRef = doc(firestore, "users", userId);
+  
+  await setDoc(
+    userRef,
+    {
+      ...userData,
+      updatedAt: new Date(),
+    },
+    { merge: true }
+  );
+};
 
-  // Mock leaderboard data
-  return [
-    {
-      rank: 1,
-      address: "PLAYER1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HVY",
-      username: "CryptoChamp",
-      wins: 48,
-      winRate: 0.86,
-      totalEarnings: 5200,
-    },
-    {
-      rank: 2,
-      address: "PLAYER2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HVY",
-      username: "AlgoMaster",
-      wins: 42,
-      winRate: 0.81,
-      totalEarnings: 4800,
-    },
-    {
-      rank: 3,
-      address: "PLAYER3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HVY",
-      username: "BlockBrawler",
-      wins: 38,
-      winRate: 0.78,
-      totalEarnings: 4100,
-    },
-    {
-      rank: 4,
-      address: "PLAYER4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HVY",
-      username: "DeFiDancer",
-      wins: 35,
-      winRate: 0.75,
-      totalEarnings: 3900,
-    },
-    {
-      rank: 5,
-      address: "PLAYER5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HVY",
-      username: "TokenTitan",
-      wins: 32,
-      winRate: 0.72,
-      totalEarnings: 3600,
-    },
+/**
+ * Fetch user profile
+ */
+export const fetchUserProfile = async (userId: string): Promise<User | null> => {
+  const firestore = await getDB();
+  const userRef = doc(firestore, "users", userId);
+  const snapshot = await getDoc(userRef);
+  
+  if (!snapshot.exists()) {
+    return null;
+  }
+  
+  const data = snapshot.data();
+  return {
+    ...data,
+    createdAt: data.createdAt?.toDate?.() || new Date(),
+    updatedAt: data.updatedAt?.toDate?.() || new Date(),
+  } as User;
+};
+
+/**
+ * Record a completed match
+ */
+export const recordMatch = async (match: Omit<Match, "id">): Promise<string> => {
+  const firestore = await getDB();
+  const matchRef = collection(firestore, "matches");
+  
+  const docRef = await addDoc(matchRef, {
+    ...match,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  
+  return docRef.id;
+};
+
+/**
+ * Fetch match details
+ */
+export const fetchMatch = async (matchId: string): Promise<Match | null> => {
+  const firestore = await getDB();
+  const matchRef = doc(firestore, "matches", matchId);
+  const snapshot = await getDoc(matchRef);
+  
+  if (!snapshot.exists()) {
+    return null;
+  }
+  
+  const data = snapshot.data();
+  return {
+    id: snapshot.id,
+    ...data,
+    createdAt: data.createdAt?.toDate?.() || new Date(),
+    updatedAt: data.updatedAt?.toDate?.() || new Date(),
+  } as Match;
+};
+
+/**
+ * Fetch user's recent matches
+ */
+export const fetchUserMatches = async (userId: string, limitCount = 10): Promise<Match[]> => {
+  const firestore = await getDB();
+  const matchesRef = collection(firestore, "matches");
+  
+  const constraints: QueryConstraint[] = [
+    where("status", "==", "completed"),
+    orderBy("createdAt", "desc"),
+    limit(limitCount),
   ];
+  
+  const q = query(matchesRef, ...constraints);
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs
+    .filter(doc => {
+      const data = doc.data();
+      return data.playerAId === userId || data.playerBId === userId;
+    })
+    .map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
+    } as Match));
 };
 
 /**
- * Fetch player's recent matches
+ * Fetch leaderboard (top players by wins)
  */
-export const fetchPlayerMatches = async (
-  address: string,
-  limit = 10
-): Promise<GameMatch[]> => {
-  // TODO: Replace with actual Firestore query
-  // import { getFirestore, collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
-  // const db = getFirestore();
-  // const q = query(
-  //   collection(db, "matches"),
-  //   where("status", "==", "completed"),
-  //   where(or(where("player1", "==", address), where("player2", "==", address))),
-  //   orderBy("timestamp", "desc"),
-  //   limit(limit)
-  // );
-
-  return [];
+export const fetchLeaderboard = async (limitCount = 10): Promise<LeaderboardEntry[]> => {
+  const firestore = await getDB();
+  const usersRef = collection(firestore, "users");
+  
+  const q = query(
+    usersRef,
+    orderBy("wins", "desc"),
+    limit(limitCount)
+  );
+  
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs.map((doc, index) => {
+    const data = doc.data();
+    const totalMatches = data.wins + data.losses;
+    const winRate = totalMatches > 0 ? data.wins / totalMatches : 0;
+    
+    return {
+      rank: index + 1,
+      userId: doc.id,
+      name: data.name,
+      wins: data.wins,
+      losses: data.losses,
+      winRate,
+      totalEarnings: data.totalStaked || 0,
+    };
+  });
 };
 
 /**
- * Update DAO pool earnings
+ * Update user stats after a match
  */
-export const updateDAOPool = async (amount: number): Promise<void> => {
-  // TODO: Replace with actual Firestore update
-  console.log(`Updating DAO pool with ${amount} ALGO`);
+export const updateUserStats = async (
+  userId: string,
+  updates: {
+    wins?: number;
+    losses?: number;
+    totalStaked?: number;
+  }
+): Promise<void> => {
+  const firestore = await getDB();
+  const userRef = doc(firestore, "users", userId);
+  
+  await updateDoc(userRef, {
+    ...updates,
+    updatedAt: new Date(),
+  });
+};
+
+/**
+ * Update match result and status
+ */
+export const updateMatchResult = async (
+  matchId: string,
+  result: {
+    winner?: string;
+    playerAChoice?: string;
+    playerBChoice?: string;
+    winnerReward?: number;
+    daoFee?: number;
+  }
+): Promise<void> => {
+  const firestore = await getDB();
+  const matchRef = doc(firestore, "matches", matchId);
+  
+  await updateDoc(matchRef, {
+    status: "completed",
+    result,
+    updatedAt: new Date(),
+  });
+};
+
+/**
+ * Get or create user by email
+ */
+export const getUserByEmail = async (email: string): Promise<User | null> => {
+  const firestore = await getDB();
+  const usersRef = collection(firestore, "users");
+  
+  const q = query(usersRef, where("email", "==", email));
+  const snapshot = await getDocs(q);
+  
+  if (snapshot.empty) {
+    return null;
+  }
+  
+  const data = snapshot.docs[0].data();
+  return {
+    id: snapshot.docs[0].id,
+    ...data,
+    createdAt: data.createdAt?.toDate?.() || new Date(),
+    updatedAt: data.updatedAt?.toDate?.() || new Date(),
+  } as User;
 };
