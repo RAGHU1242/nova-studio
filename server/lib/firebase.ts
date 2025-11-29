@@ -5,57 +5,83 @@ import path from 'path';
 // In development, this connects to the local emulator
 // In production, it uses the GOOGLE_APPLICATION_CREDENTIALS environment variable
 
-let db: admin.firestore.Firestore;
-let auth: admin.auth.Auth;
+let db: admin.firestore.Firestore | null = null;
+let auth: admin.auth.Auth | null = null;
+let isInitializing = false;
 
 // Check if running with emulator
 const useEmulator = process.env.FIRESTORE_EMULATOR_HOST || process.env.NODE_ENV === 'development';
 
 export function initializeFirebase() {
   try {
+    // Skip if already initialized or currently initializing
+    if (db && auth) {
+      return { db, auth };
+    }
+
+    if (isInitializing) {
+      return null;
+    }
+
+    isInitializing = true;
+
     // Initialize Firebase Admin with explicit credentials if provided
-    if (!admin.apps.length) {
+    if (!admin || !admin.apps || !admin.apps.length) {
       let credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-      
+
       // If no credentials file is specified, try to auto-discover
       if (!credentialsPath && process.env.NODE_ENV === 'production') {
         throw new Error('GOOGLE_APPLICATION_CREDENTIALS environment variable must be set in production');
       }
 
-      admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID || 'algobattle-local',
-        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'algobattle-local.appspot.com',
-      });
+      if (admin && admin.initializeApp) {
+        admin.initializeApp({
+          projectId: process.env.FIREBASE_PROJECT_ID || 'algobattle-local',
+          storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'algobattle-local.appspot.com',
+        });
 
-      // Connect to emulator if in development
-      if (useEmulator && process.env.NODE_ENV !== 'production') {
-        process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080';
-        process.env.FIREBASE_AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099';
-        console.log('🔥 Using Firebase Local Emulator');
-        console.log(`   Firestore: ${process.env.FIRESTORE_EMULATOR_HOST}`);
-        console.log(`   Auth: ${process.env.FIREBASE_AUTH_EMULATOR_HOST}`);
+        // Connect to emulator if in development
+        if (useEmulator && process.env.NODE_ENV !== 'production') {
+          process.env.FIRESTORE_EMULATOR_HOST = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8080';
+          process.env.FIREBASE_AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099';
+          console.log('🔥 Using Firebase Local Emulator');
+          console.log(`   Firestore: ${process.env.FIRESTORE_EMULATOR_HOST}`);
+          console.log(`   Auth: ${process.env.FIREBASE_AUTH_EMULATOR_HOST}`);
+        }
       }
     }
 
-    db = admin.firestore();
-    auth = admin.auth();
+    if (admin && admin.firestore && admin.auth) {
+      db = admin.firestore();
+      auth = admin.auth();
 
-    // Set up some basic Firestore settings
-    db.settings({
-      ignoreUndefinedProperties: true,
-    });
+      // Set up some basic Firestore settings
+      db.settings({
+        ignoreUndefinedProperties: true,
+      });
 
-    return { db, auth };
+      return { db, auth };
+    }
+
+    return null;
   } catch (error) {
     console.error('Failed to initialize Firebase:', error);
-    throw error;
+    isInitializing = false;
+    // Don't throw during initialization, just log
+    return null;
+  } finally {
+    isInitializing = false;
   }
 }
 
 // Get Firestore instance
 export function getFirestore(): admin.firestore.Firestore {
   if (!db) {
-    initializeFirebase();
+    const result = initializeFirebase();
+    if (!result || !result.db) {
+      throw new Error('Firebase not initialized');
+    }
+    db = result.db;
   }
   return db;
 }
@@ -63,7 +89,11 @@ export function getFirestore(): admin.firestore.Firestore {
 // Get Firebase Auth instance
 export function getAuth(): admin.auth.Auth {
   if (!auth) {
-    initializeFirebase();
+    const result = initializeFirebase();
+    if (!result || !result.auth) {
+      throw new Error('Firebase not initialized');
+    }
+    auth = result.auth;
   }
   return auth;
 }
