@@ -1,6 +1,15 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { connectWallet, disconnectWallet, formatAddress } from "@/utils/wallet";
 import { cn } from "@/lib/utils";
+import {
+  fadeInUpVariants,
+  scaleInVariants,
+  containerVariants,
+  itemVariants,
+  spinnerVariants,
+  checkVariants,
+} from "@/lib/animations";
 
 export interface WalletConnectProps {
   onConnect?: (address: string) => void;
@@ -57,38 +66,60 @@ export default function WalletConnect({
 
   if (isConnected && address) {
     return (
-      <div
+      <motion.div
         className={cn(
           "flex items-center gap-3 rounded-xl bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 p-4",
           className
         )}
+        variants={scaleInVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover={{ scale: 1.02, boxShadow: "0 10px 25px rgba(139, 92, 246, 0.2)" }}
       >
-        <div className="flex-1">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+        <motion.div className="flex-1" variants={containerVariants}>
+          <motion.p
+            className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide"
+            variants={itemVariants}
+          >
             Connected
-          </p>
-          <p className="text-sm font-mono font-bold text-slate-900 dark:text-slate-100">
+          </motion.p>
+          <motion.p
+            className="text-sm font-mono font-bold text-slate-900 dark:text-slate-100"
+            variants={itemVariants}
+            animate={{ color: ["#000", "#8b5cf6", "#000"] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
             {formatAddress(address)}
-          </p>
+          </motion.p>
           {balance !== null && (
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+            <motion.p
+              className="text-xs text-slate-600 dark:text-slate-400 mt-1"
+              variants={itemVariants}
+            >
               Balance: {balance.toFixed(2)} ALGO
-            </p>
+            </motion.p>
           )}
-        </div>
-        <button
+        </motion.div>
+        <motion.button
           onClick={handleDisconnect}
           className="px-3 py-1 text-sm font-medium rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
         >
           Disconnect
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     );
   }
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      <button
+    <motion.div
+      className={cn("flex flex-col gap-2", className)}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.button
         onClick={handleConnect}
         disabled={isLoading}
         className={cn(
@@ -99,10 +130,21 @@ export default function WalletConnect({
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
           "active:scale-95"
         )}
+        whileHover={!isLoading ? { scale: 1.05, boxShadow: "0 0 20px rgba(139, 92, 246, 0.6)" } : {}}
+        whileTap={!isLoading ? { scale: 0.95 } : {}}
+        variants={itemVariants}
       >
         {isLoading ? (
-          <span className="flex items-center gap-2">
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+          <motion.span
+            className="flex items-center gap-2"
+            variants={containerVariants}
+          >
+            <motion.svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              variants={spinnerVariants}
+              animate="rotate"
+            >
               <circle
                 className="opacity-25"
                 cx="12"
@@ -117,21 +159,36 @@ export default function WalletConnect({
                 fill="currentColor"
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
-            </svg>
-            Connecting...
-          </span>
+            </motion.svg>
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              Connecting...
+            </motion.span>
+          </motion.span>
         ) : (
           "Connect Wallet"
         )}
-      </button>
+      </motion.button>
       {error && (
-        <p className="text-xs text-red-600 dark:text-red-400 text-center">
+        <motion.p
+          className="text-xs text-red-600 dark:text-red-400 text-center"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+        >
           {error}
-        </p>
+        </motion.p>
       )}
-      <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
+      <motion.p
+        className="text-xs text-slate-500 dark:text-slate-400 text-center"
+        variants={itemVariants}
+      >
         Pera Wallet or MyAlgoConnect
-      </p>
-    </div>
+      </motion.p>
+    </motion.div>
   );
 }
