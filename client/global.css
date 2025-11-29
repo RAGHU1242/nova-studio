@@ -7,19 +7,19 @@
 
 @layer base {
   /**
-   * Tailwind CSS theme - AlgoBattle Arena dark mode
+   * Tailwind CSS theme - AlgoBattle Arena enhanced dark mode
    * tailwind.config.ts expects the following color variables to be expressed as HSL values.
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    /* Dark theme for AlgoBattle Arena */
-    --background: 217.2 32.6% 5%;
+    /* Enhanced dark theme for AlgoBattle Arena */
+    --background: 217.2 32.6% 3%;
     --foreground: 210 40% 98%;
 
-    --card: 217.2 32.6% 8%;
+    --card: 217.2 20% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 217.2 32.6% 8%;
+    --popover: 217.2 20% 12%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 288 82% 52%;
@@ -28,8 +28,8 @@
     --secondary: 186 100% 50%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217.2 15% 25%;
+    --muted-foreground: 215 15% 65%;
 
     --accent: 288 82% 52%;
     --accent-foreground: 210 40% 98%;
@@ -37,8 +37,8 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 15%;
-    --input: 217.2 32.6% 12%;
+    --border: 217.2 20% 20%;
+    --input: 217.2 20% 15%;
     --ring: 288 82% 52%;
 
     --radius: 0.875rem;
@@ -54,8 +54,8 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white;
-    @apply font-sans;
+    @apply bg-gradient-dark text-foreground font-sans;
+    background-attachment: fixed;
   }
 
   :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
@@ -68,25 +68,54 @@
     overflow-x: auto;
     white-space: pre;
   }
+
+  /* Enhanced typography base */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    @apply text-sm md:text-base leading-relaxed;
+  }
 }
 
 @layer components {
-  /* Gradient button utilities */
+  /* Gradient button utilities - Enhanced */
   .btn-gradient {
-    @apply bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 transition-all duration-200 shadow-lg shadow-violet-600/50 hover:shadow-violet-600/70;
+    @apply bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 transition-all duration-300 shadow-glow-violet hover:shadow-glow-violet-lg;
   }
 
   .btn-gradient-dark {
-    @apply bg-gradient-to-r from-violet-700 to-cyan-700 hover:from-violet-600 hover:to-cyan-600 transition-all duration-200;
+    @apply bg-gradient-to-r from-violet-700 to-cyan-700 hover:from-violet-600 hover:to-cyan-600 transition-all duration-300;
   }
 
-  /* Card utilities */
+  /* Card utilities - Enhanced with glassmorphism */
   .card-arena {
-    @apply rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 backdrop-blur-sm;
+    @apply rounded-2xl border border-slate-700/60 bg-gradient-card backdrop-blur-xl shadow-depth-2;
   }
 
   .card-arena-light {
-    @apply rounded-2xl border border-slate-700 bg-slate-800/50 backdrop-blur-sm;
+    @apply rounded-2xl border border-slate-700/40 bg-slate-900/30 backdrop-blur-lg shadow-depth-1;
+  }
+
+  .card-glass {
+    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-depth-2 hover:bg-white/8 transition-all;
+  }
+
+  .card-glass-dark {
+    @apply rounded-2xl border border-slate-700/50 bg-slate-800/50 backdrop-blur-xl shadow-depth-2;
   }
 
   /* Gradient text */
@@ -98,13 +127,67 @@
     @apply bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent;
   }
 
-  /* Shadow utilities */
+  .text-gradient-cyan {
+    @apply bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent;
+  }
+
+  /* Shadow utilities - Enhanced */
   .shadow-glow {
-    @apply shadow-lg shadow-violet-600/50 hover:shadow-violet-600/70 transition-shadow;
+    @apply shadow-glow-violet hover:shadow-glow-violet-lg transition-shadow;
   }
 
   .shadow-glow-cyan {
-    @apply shadow-lg shadow-cyan-600/50 hover:shadow-cyan-600/70 transition-shadow;
+    @apply shadow-glow-cyan hover:shadow-glow-cyan-lg transition-shadow;
+  }
+
+  .shadow-glow-gradient {
+    @apply shadow-glow-gradient hover:shadow-glow-violet-lg transition-shadow;
+  }
+
+  /* Input field styling */
+  .input-elegant {
+    @apply w-full rounded-lg border border-slate-700/60 bg-slate-900/50 px-4 py-2.5 text-white placeholder:text-slate-500 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/50 focus:bg-slate-900/80 transition-all duration-200;
+  }
+
+  /* Form control styling */
+  .form-control-group {
+    @apply space-y-2;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-slate-300;
+  }
+
+  .form-error {
+    @apply text-xs text-red-400 font-medium;
+  }
+
+  .form-help {
+    @apply text-xs text-slate-400;
+  }
+
+  /* Focus ring utilities - Accessible */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  .focus-ring-cyan {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950;
+  }
+
+  /* Badge enhancements */
+  .badge-glow {
+    @apply shadow-glow-violet hover:shadow-glow-violet-lg transition-all;
+  }
+
+  /* Button group */
+  .btn-group {
+    @apply flex gap-2 flex-wrap;
+  }
+
+  /* Premium card hover effect */
+  .premium-card {
+    @apply rounded-2xl border border-slate-700/60 bg-gradient-card backdrop-blur-xl shadow-depth-2 transition-all duration-300 hover:border-violet-500/50 hover:shadow-glow-violet;
   }
 }
 
@@ -118,9 +201,13 @@
     animation-delay: 4s;
   }
 
-  /* Glassmorphism */
+  /* Glassmorphism - Enhanced */
   .glassmorphism {
-    @apply backdrop-blur-md bg-white/10 border border-white/20;
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 shadow-depth-2;
+  }
+
+  .glassmorphism-dark {
+    @apply backdrop-blur-xl bg-slate-900/40 border border-slate-700/50 shadow-depth-2;
   }
 
   /* Smooth transitions */
@@ -132,18 +219,26 @@
     @apply transition-all duration-200 ease-out;
   }
 
-  /* Glow effects */
+  /* Glow effects - Enhanced */
   .glow-violet {
-    @apply shadow-lg shadow-violet-600/50;
+    @apply shadow-glow-violet;
   }
 
   .glow-cyan {
-    @apply shadow-lg shadow-cyan-600/50;
+    @apply shadow-glow-cyan;
+  }
+
+  .glow-gradient {
+    @apply shadow-glow-gradient;
   }
 
   /* Hover lift effects */
   .hover-lift {
-    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-xl;
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-glow-violet;
+  }
+
+  .hover-lift-sm {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-depth-2;
   }
 
   /* Button animations */
@@ -161,12 +256,16 @@
     @apply transition-transform duration-200 hover:scale-105;
   }
 
+  .scale-hover-sm {
+    @apply transition-transform duration-200 hover:scale-102;
+  }
+
   /* Smooth fade */
   .fade-smooth {
     @apply transition-opacity duration-300;
   }
 
-  /* Border glow animation */
+  /* Border animations */
   @keyframes border-glow {
     0%, 100% {
       border-color: rgba(139, 92, 246, 0.5);
@@ -223,5 +322,108 @@
   .shimmer {
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
+  }
+
+  /* Contrast and accessibility utilities */
+  .high-contrast {
+    @apply dark:text-slate-50 dark:bg-slate-900;
+  }
+
+  .text-contrast-high {
+    @apply text-slate-900 dark:text-slate-50;
+  }
+
+  .text-contrast-medium {
+    @apply text-slate-700 dark:text-slate-200;
+  }
+
+  /* Spacing utilities - Consistent system */
+  .gap-xs {
+    @apply gap-2;
+  }
+
+  .gap-sm {
+    @apply gap-3;
+  }
+
+  .gap-md {
+    @apply gap-4;
+  }
+
+  .gap-lg {
+    @apply gap-6;
+  }
+
+  .gap-xl {
+    @apply gap-8;
+  }
+
+  /* Padding utilities */
+  .p-xs {
+    @apply p-2;
+  }
+
+  .p-sm {
+    @apply p-3;
+  }
+
+  .p-md {
+    @apply p-4;
+  }
+
+  .p-lg {
+    @apply p-6;
+  }
+
+  .p-xl {
+    @apply p-8;
+  }
+
+  /* Backdrop utilities */
+  .backdrop-sm {
+    @apply backdrop-blur-sm;
+  }
+
+  .backdrop-md {
+    @apply backdrop-blur-md;
+  }
+
+  .backdrop-lg {
+    @apply backdrop-blur-lg;
+  }
+
+  .backdrop-xl {
+    @apply backdrop-blur-xl;
+  }
+
+  /* Border and shadow combinations */
+  .elevated-card {
+    @apply rounded-xl border border-slate-700/50 bg-slate-800/50 backdrop-blur-lg shadow-depth-3 hover:shadow-glow-violet transition-all;
+  }
+
+  .surface-primary {
+    @apply bg-slate-900/70 backdrop-blur-sm border border-slate-700/50;
+  }
+
+  .surface-secondary {
+    @apply bg-slate-800/50 backdrop-blur-sm border border-slate-700/30;
+  }
+
+  /* Focus styles for better keyboard navigation */
+  .focus-outline {
+    @apply focus:outline-2 focus:outline-offset-2 focus:outline-violet-500;
+  }
+
+  /* Text truncation utilities */
+  .line-clamp-1 {
+    @apply overflow-hidden text-ellipsis whitespace-nowrap;
+  }
+
+  .line-clamp-2 {
+    @apply line-clamp-2;
+  }
+
+  .line-clamp-3 {
+    @apply line-clamp-3;
   }
 }
