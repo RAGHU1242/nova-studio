@@ -1,10 +1,11 @@
 import * as React from "react";
+import { motion } from "framer-motion";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:scale-105 cursor-default",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-default",
   {
     variants: {
       variant: {
@@ -30,7 +31,23 @@ export interface BadgeProps
 
 function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <motion.div
+      className={cn(badgeVariants({ variant }), className)}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 20,
+        delay: 0.1,
+      }}
+      whileHover={{
+        scale: 1.08,
+        boxShadow: "0 0 20px rgba(139, 92, 246, 0.5)",
+      }}
+      whileTap={{ scale: 0.95 }}
+      {...props}
+    />
   );
 }
 
