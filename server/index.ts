@@ -1,9 +1,13 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import http from "http";
 import { authMiddleware } from "./middleware/auth";
+import { initializeFirebase } from "./lib/firebase";
+import { GameServer } from "./lib/socket";
 import { handleDemo } from "./routes/demo";
-import { handleRegister, handleLogin, handleGetCurrentUser } from "./routes/auth";
+import { handleRegister, handleLogin, handleGetCurrentUser, handleLogout, handleRefreshToken } from "./routes/auth";
 import { handleGetLeaderboard, handleGetUserRank } from "./routes/leaderboard";
 import {
   handleJoinMatch,
@@ -15,11 +19,22 @@ import {
 
 export function createServer() {
   const app = express();
+  const httpServer = http.createServer(app);
+
+  // Initialize Firebase
+  initializeFirebase();
+
+  // Initialize Socket.IO Game Server
+  const gameServer = new GameServer(httpServer);
 
   // Middleware
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+
+  // Expose Socket.IO instance for testing/debugging
+  app.locals.gameServer = gameServer;
 
   // Health check endpoint
   app.get("/api/ping", (_req, res) => {
@@ -38,6 +53,8 @@ export function createServer() {
   // Auth endpoints (public)
   app.post("/api/auth/register", handleRegister);
   app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/logout", handleLogout);
+  app.post("/api/auth/refresh", handleRefreshToken);
 
   // User endpoints
   app.get("/api/users/me", authMiddleware, handleGetCurrentUser);
@@ -62,5 +79,7 @@ export function createServer() {
   // Note: 404 handler is NOT included here because this is used as Vite middleware
   // in development. In production, the frontend is served separately.
 
+  // Return both app and httpServer
+  (app as any).httpServer = httpServer;
   return app;
 }
