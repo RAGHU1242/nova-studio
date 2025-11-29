@@ -125,15 +125,25 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 hover:border-slate-600 transition"
+                whileHover={{ y: -5, boxShadow: "0 20px 40px rgba(139, 92, 246, 0.2)" }}
+                className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 hover:border-slate-600 transition cursor-default"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color} opacity-20`}>
+                  <motion.div
+                    className={`p-3 rounded-lg bg-gradient-to-r ${stat.color} opacity-20`}
+                    whileHover={{ scale: 1.1 }}
+                  >
                     <Icon className={`w-6 h-6 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} />
-                  </div>
+                  </motion.div>
                 </div>
                 <p className="text-slate-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold">{stat.value}</p>
+                <motion.p
+                  className="text-3xl font-bold"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {stat.value}
+                </motion.p>
               </motion.div>
             );
           })}
@@ -148,22 +158,33 @@ export default function Dashboard() {
             className="lg:col-span-1 space-y-4"
           >
             <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-            {quickActions.map((action) => {
+            {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
-                <Link key={action.title} to={action.href}>
-                  <div className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-4 hover:border-slate-600 transition group">
-                    <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-r ${action.color} opacity-20 group-hover:opacity-30 transition`}>
-                        <Icon className={`w-5 h-5 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`} />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{action.title}</p>
-                        <p className="text-sm text-slate-400">{action.description}</p>
+                <motion.div
+                  key={action.title}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ x: 10, scale: 1.02 }}
+                >
+                  <Link to={action.href}>
+                    <div className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-4 hover:border-slate-600 transition group">
+                      <div className="flex items-start gap-4">
+                        <motion.div
+                          className={`p-3 rounded-lg bg-gradient-to-r ${action.color} opacity-20 group-hover:opacity-30 transition`}
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <Icon className={`w-5 h-5 bg-gradient-to-r ${action.color} bg-clip-text text-transparent`} />
+                        </motion.div>
+                        <div>
+                          <p className="font-semibold">{action.title}</p>
+                          <p className="text-sm text-slate-400">{action.description}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               );
             })}
           </motion.div>
@@ -203,27 +224,47 @@ export default function Dashboard() {
           className="rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-6 mb-12"
         >
           <h2 className="text-2xl font-bold mb-6">Recent Matches</h2>
-          <div className="space-y-3">
+          <motion.div
+            className="space-y-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ staggerChildren: 0.1 }}
+          >
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ x: 5, boxShadow: "0 10px 20px rgba(139, 92, 246, 0.15)" }}
+                className="flex items-center justify-between p-4 rounded-lg bg-slate-900/50 border border-slate-700 transition"
+              >
                 <div>
                   <p className="font-semibold">vs Player_abc123</p>
                   <p className="text-sm text-slate-400">2 hours ago</p>
                 </div>
-                <div className="text-right">
+                <motion.div
+                  className="text-right"
+                  whileHover={{ scale: 1.05 }}
+                >
                   <p className={`font-bold ${i % 2 === 0 ? "text-violet-400" : "text-cyan-400"}`}>
                     {i % 2 === 0 ? "Won" : "Lost"}
                   </p>
                   <p className="text-sm text-slate-400">10 ALGO</p>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
-          <Link to="/leaderboard">
-            <Button variant="ghost" className="w-full mt-4 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800">
-              View All Matches
-            </Button>
-          </Link>
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Link to="/leaderboard">
+              <Button variant="ghost" className="w-full mt-4 text-cyan-400 hover:text-cyan-300 hover:bg-slate-800">
+                View All Matches
+              </Button>
+            </Link>
+          </motion.div>
         </motion.div>
 
         {/* Logout Button */}
