@@ -50,7 +50,7 @@ shared/
 
 ## ✨ Key Features
 
----
+ 
 
 ## 🌐 SPA Routing System
 
@@ -89,7 +89,7 @@ className={cn(
 )}
 ```
 
----
+ 
 
 ## ⚙️ Express Server Integration
 
@@ -135,7 +135,7 @@ const res = await fetch("/api/my-endpoint");
 const data: MyRouteResponse = await res.json();
 ```
 
----
+ 
 
 ## 🔗 Shared Types & Path Aliases
 
@@ -147,8 +147,8 @@ Available aliases:
 import { DemoResponse } from "@shared/api";
 ```
 
----
----
+ 
+ 
 
 ## 🧑‍💻 Development Commands
 
@@ -160,7 +160,7 @@ pnpm test       # Run Vitest tests
 pnpm typecheck  # TypeScript validation
 ```
 
----
+ 
 
 ## 🎮 Gameplay Basics
 
@@ -171,7 +171,7 @@ pnpm typecheck  # TypeScript validation
    - 🏆 90% Winner  
    - 🤝 10% DAO Pool  
 
----
+ 
 
 ## 🔐 Game Logic Summary
 
@@ -180,7 +180,7 @@ pnpm typecheck  # TypeScript validation
 - **Win Split**: 90% Winner / 10% DAO  
 - Moves: Rock 🪨 | Paper 📄 | Scissors ✂️
 
----
+ 
 
 ## 🏗 Production Deployment
 
@@ -198,7 +198,7 @@ pnpm build
   - Netlify
   - Vercel (via MCP integration)
 
----
+ 
 
 ## 📜 AGENTS.md Summary
 
@@ -209,14 +209,14 @@ Your internal documentation aligns with this README and includes:
 - Route info  
 - Full project architecture  
 
----
+ 
 
 ## 📄 License
 
 MIT License  
 Free to use, fork, and extend 🚀  
 
----
+ 
 
 Built with ❤️ on Algorand  
 
@@ -248,7 +248,7 @@ This ensures:
 - No duplicate Tailwind classes  
 - Easy conditional styling  
 
----
+ 
 
 ### ⚙️ Express Server Integration
 
@@ -263,7 +263,7 @@ The backend is seamlessly integrated with Vite for full-stack development.
 - `GET /api/ping` → Simple health check  
 - `GET /api/demo` → Demo API endpoint  
 
----
+ 
 
 ### 🔗 Shared Types & Path Aliases
 
@@ -292,7 +292,7 @@ pnpm typecheck  # Run TypeScript type checks
 pnpm test       # Run Vitest test suite
 ```
 
----
+ 
 
 ## ➕ Adding Features
 
@@ -306,7 +306,7 @@ To extend the color palette:
 
 This allows you to control and scale your design system from a single source of truth.
 
----
+ 
 
 ### 🌐 Adding a New API Route
 
@@ -349,7 +349,7 @@ export const handleMyRoute: RequestHandler = (req, res) => {
 };
 ```
 
----
+ 
 
 3. Register the route in `server/index.ts`:
 
@@ -362,7 +362,7 @@ app.get("/api/my-endpoint", handleMyRoute);
 
 ✅ This keeps all API routes namespaced under `/api/*` and easy to maintain.
 
----
+ 
 
 4. Use the API in React components (with type safety):
 
@@ -377,7 +377,7 @@ console.log(data.message);
 
 This keeps your frontend and backend strongly typed and consistent.
 
----
+ 
 
 ## 📄 Creating a New Page Route
 
@@ -407,7 +407,7 @@ This keeps your frontend and backend strongly typed and consistent.
   Easily deploy using **Netlify** or **Vercel** via their MCP integrations.  
   Both platforms work seamlessly with this starter template.
 
----
+ 
 
 ## 🏗 Architecture Notes
 
